@@ -5,6 +5,7 @@ import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.exception.CardNotFoundException;
+import com.example.bankcards.exception.StatusAlreadySetException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.CardSpecification;
 import com.example.bankcards.service.CardService;
@@ -66,7 +67,7 @@ public class CardServiceImpl implements CardService {
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public Card blockCard(UUID cardId) {
-        return updateCardStatus(cardId, CardStatus.ACTIVE);
+        return updateCardStatus(cardId, CardStatus.BLOCKED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -78,6 +79,12 @@ public class CardServiceImpl implements CardService {
     public Card updateCardStatus(UUID cardId, CardStatus status) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
+        String cardNumber = card.getEncryptedNumber();
+
+        if (card.getStatus() == status) {
+            throw new StatusAlreadySetException(cardNumber, status);
+        }
+
         card.setStatus(status);
         return cardRepository.save(card);
     }
