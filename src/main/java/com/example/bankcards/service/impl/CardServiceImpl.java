@@ -1,15 +1,17 @@
 package com.example.bankcards.service.impl;
 
+import com.example.bankcards.dto.CardFilter;
 import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.repository.CardRepository;
+import com.example.bankcards.repository.CardSpecification;
 import com.example.bankcards.service.CardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -46,6 +47,15 @@ public class CardServiceImpl implements CardService {
     public Card getCardById(UUID id) {
         return cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public Page<Card> getAllCards(CardFilter cardFilter) {
+        return cardRepository.findAll(
+                CardSpecification.withFilter(cardFilter),
+                PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize())
+        );
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
