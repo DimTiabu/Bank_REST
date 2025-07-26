@@ -2,18 +2,16 @@ package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class CardFilter {
     @Builder.Default

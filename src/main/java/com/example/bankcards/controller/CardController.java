@@ -1,0 +1,64 @@
+package com.example.bankcards.controller;
+
+import com.example.bankcards.dto.CardFilter;
+import com.example.bankcards.dto.CardRequest;
+import com.example.bankcards.entity.Card;
+import com.example.bankcards.service.CardService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/cards")
+@RequiredArgsConstructor
+public class CardController {
+
+    private final CardService cardService;
+
+    @PostMapping
+    @ResponseStatus(code = org.springframework.http.HttpStatus.CREATED)
+    public Card createCard(@RequestBody CardRequest cardRequest) {
+        return cardService.createCard(cardRequest);
+    }
+
+    @GetMapping("/{id}")
+    public Card getCardById(@PathVariable UUID id) {
+        return cardService.getCardById(id);
+    }
+
+    @GetMapping
+    public Page<Card> getAllCards(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "5") int pageSize,
+            CardFilter cardFilter) {
+        cardFilter.setPageNumber(pageNumber);
+        cardFilter.setPageSize(pageSize);
+        return cardService.getAllCards(cardFilter);
+    }
+
+    @GetMapping("/user/{userId}")
+    public Page<Card> getUserCards(
+            @PathVariable UUID userId,
+            Pageable pageable) {
+        return cardService.getUserCards(userId, pageable);
+    }
+
+    @PutMapping("/{cardId}/block")
+    public Card blockCard(@PathVariable UUID cardId) {
+        return cardService.blockCard(cardId);
+    }
+
+    @PutMapping("/{cardId}/activate")
+    public Card activateCard(@PathVariable UUID cardId) {
+        return cardService.activateCard(cardId);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(code = org.springframework.http.HttpStatus.NO_CONTENT)
+    public void deleteCard(@PathVariable UUID id) {
+        cardService.deleteCard(id);
+    }
+}
