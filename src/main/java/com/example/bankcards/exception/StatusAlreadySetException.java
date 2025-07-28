@@ -4,6 +4,6 @@ import com.example.bankcards.entity.CardStatus;
 
 public class StatusAlreadySetException extends RuntimeException {
     public StatusAlreadySetException(String cardNumber, CardStatus status) {
-        super("Для карты " + cardNumber + "уже установлен статус \"" + status + "\"");
+        super("Для карты " + cardNumber + " уже установлен статус \"" + status + "\"");
     }
 }

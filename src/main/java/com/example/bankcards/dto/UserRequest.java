@@ -2,9 +2,11 @@ package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.UserRole;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,11 +25,15 @@ public class UserRequest {
     @Email(message = "Неправильный формат электронной почты")
     private String email;
 
-    @NotEmpty(message = "Укажите электронную почту")
+    @Pattern(regexp = "^(89\\d{8})$", message = "Укажите номер телефона в формате 89********* ")
+    @NotEmpty(message = "Укажите номер телефона")
     private String phoneNumber;
 
-    @NotEmpty(message = "Укажите электронную почту")
+    @NotEmpty(message = "Укажите пароль")
     private String password;
+
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default
     private UserRole role = UserRole.ROLE_USER;

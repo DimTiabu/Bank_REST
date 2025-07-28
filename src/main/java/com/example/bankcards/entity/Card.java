@@ -15,9 +15,8 @@ import java.util.UUID;
 @Setter
 @Builder
 public class Card {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "encrypted_number", nullable = false, unique = true)
