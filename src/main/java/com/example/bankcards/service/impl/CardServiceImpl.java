@@ -2,8 +2,11 @@ package com.example.bankcards.service.impl;
 
 import com.example.bankcards.dto.CardFilter;
 import com.example.bankcards.dto.CardRequest;
+import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.entity.InsufficientFundsException;
+import com.example.bankcards.exception.CardIsNotActiveException;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.StatusAlreadySetException;
 import com.example.bankcards.repository.CardRepository;
@@ -24,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
@@ -44,7 +46,6 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Card getCardById(UUID id) {
         return cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
@@ -59,10 +60,6 @@ public class CardServiceImpl implements CardService {
         );
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public Page<Card> getUserCards(UUID userId, Pageable pageable) {
-        return cardRepository.findByUser(userId, pageable);
-    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
@@ -96,5 +93,53 @@ public class CardServiceImpl implements CardService {
             throw new CardNotFoundException(id);
         }
         cardRepository.deleteById(id);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public Page<Card> getAllMyCards(UUID userId, Pageable pageable) {
+        //TODO: Добавить фильтр как в методе запроса всех карт всех пользователей
+        return cardRepository.findByUserId(userId, pageable);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @Override
+    public void requestCardBlock(UUID cardId, UUID currentUserId) {
+        Card card = getCardById(cardId);
+        if (card.getUser().getId().equals(currentUserId)){
+            throw new CardNotFoundException(cardId);
+        }
+        //TODO: реализация метода
+    }
+
+    @Override
+    @Transactional
+    public void transferBetweenMyCards(TransferRequest request, UUID currentUserId) {
+        Card fromCard = getCardByCardNumberAndUserId(request.getFromCardNumber(), currentUserId);
+        Card toCard = getCardByCardNumberAndUserId(request.getFromCardNumber(), currentUserId);
+
+        if (fromCard.getStatus() != CardStatus.ACTIVE || toCard.getStatus() != CardStatus.ACTIVE) {
+            throw new CardIsNotActiveException();
+        }
+
+        if (fromCard.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new InsufficientFundsException();
+        }
+
+        fromCard.setBalance(fromCard.getBalance().subtract(request.getAmount()));
+        toCard.setBalance(toCard.getBalance().add(request.getAmount()));
+
+        cardRepository.save(fromCard);
+        cardRepository.save(toCard);
+    }
+
+    @Override
+    public BigDecimal getMyCardBalance(String cardNumber, UUID currentUserId) {
+        Card card = getCardByCardNumberAndUserId(cardNumber, currentUserId);
+        return card.getBalance();
+    }
+
+    public Card getCardByCardNumberAndUserId(String cardNumber, UUID currentUserId) {
+        return cardRepository.findByEncryptedNumberAndUserId(cardNumber, currentUserId)
+                .orElseThrow(() -> new CardNotFoundException(cardNumber));
     }
 }

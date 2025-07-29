@@ -6,4 +6,8 @@ public class CardNotFoundException extends RuntimeException {
     public CardNotFoundException(UUID cardId) {
         super("Карта с id: " + cardId + " не найдена");
     }
+
+    public CardNotFoundException(String cardNumber) {
+        super("Карта с номером " + cardNumber + " не найдена");
+    }
 }
