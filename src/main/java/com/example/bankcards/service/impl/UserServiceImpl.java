@@ -14,16 +14,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse createUser(UserRequest request) {
         String email = request.getEmail();
         if (userRepository.existsByEmail(email)) {
@@ -44,7 +43,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(UUID id, UserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -58,7 +56,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException(id);
@@ -67,16 +64,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserById(UUID id) {
         return userRepository.findById(id)
                 .map(this::mapToResponse)
@@ -85,7 +80,6 @@ public class UserServiceImpl implements UserService {
 
     private UserResponse mapToResponse(User user) {
         return UserResponse.builder()
-                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
