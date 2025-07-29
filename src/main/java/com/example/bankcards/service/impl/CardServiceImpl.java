@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,9 +95,12 @@ public class CardServiceImpl implements CardService {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public Page<Card> getAllMyCards(UUID userId, Pageable pageable) {
-        //TODO: Добавить фильтр как в методе запроса всех карт всех пользователей
-        return cardRepository.findByUserId(userId, pageable);
+    public Page<Card> getAllMyCards(UUID currentUserId, CardFilter cardFilter) {
+        cardFilter.setUserId(currentUserId);
+        return cardRepository.findAll(
+                CardSpecification.withFilter(cardFilter),
+                PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize())
+        );
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -115,7 +117,7 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public void transferBetweenMyCards(TransferRequest request, UUID currentUserId) {
         Card fromCard = getCardByCardNumberAndUserId(request.getFromCardNumber(), currentUserId);
-        Card toCard = getCardByCardNumberAndUserId(request.getFromCardNumber(), currentUserId);
+        Card toCard = getCardByCardNumberAndUserId(request.getToCardNumber(), currentUserId);
 
         if (fromCard.getStatus() != CardStatus.ACTIVE || toCard.getStatus() != CardStatus.ACTIVE) {
             throw new CardIsNotActiveException();

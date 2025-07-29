@@ -1,7 +1,6 @@
 package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.User;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -24,7 +23,7 @@ public class CardFilter {
 
     private String encryptedNumber;
 
-    private User user;
+    private UUID userId;
 
     private LocalDate expirationDateFrom;
     private LocalDate expirationDateTo;

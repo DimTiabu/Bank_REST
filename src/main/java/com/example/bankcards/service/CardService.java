@@ -5,7 +5,6 @@ import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,7 +25,7 @@ public interface CardService {
 
     void deleteCard(UUID id);
 
-    Page<Card> getAllMyCards(UUID userId, Pageable pageable);
+    Page<Card> getAllMyCards(UUID userId, CardFilter cardFilter);
 
     void requestCardBlock(UUID cardId, UUID currentUserId);
 

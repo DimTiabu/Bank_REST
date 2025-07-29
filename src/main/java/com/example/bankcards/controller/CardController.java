@@ -7,7 +7,6 @@ import com.example.bankcards.entity.Card;
 import com.example.bankcards.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -60,8 +59,8 @@ public class CardController {
     @GetMapping("/user/{userId}")
     public Page<Card> getAllMyCards(
             @PathVariable UUID userId,
-            Pageable pageable) {
-        return cardService.getAllMyCards(userId, pageable);
+            CardFilter cardFilter) {
+        return cardService.getAllMyCards(userId, cardFilter);
     }
 
     @PutMapping("/{cardId}/request-block")

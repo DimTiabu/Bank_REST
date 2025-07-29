@@ -17,14 +17,13 @@ public interface CardSpecification {
 
         spec = and(spec, byId(cardFilter.getId()));
         spec = and(spec, byEncryptedNumber(cardFilter.getEncryptedNumber()));
-        spec = and(spec, byUserId(cardFilter.getUser() != null ? cardFilter.getUser().getId() : null));
+        spec = and(spec, byUserId(cardFilter.getUserId() != null ? cardFilter.getUserId() : null));
         spec = and(spec, byRange(FIELD_EXPIRATION_DATE, cardFilter.getExpirationDateFrom(), cardFilter.getExpirationDateTo()));
         spec = and(spec, byStatus(cardFilter.getStatus()));
         spec = and(spec, byRange(FIELD_BALANCE, cardFilter.getBalanceFrom(), cardFilter.getBalanceTo()));
 
         return spec;
     }
-
 
     private static <T> Specification<T> and(Specification<T> base, Specification<T> addition) {
         return base == null ? addition : base.and(addition);
