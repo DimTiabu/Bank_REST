@@ -5,6 +5,7 @@ import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.service.CardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class CardController {
 
     @PostMapping
     @ResponseStatus(code = org.springframework.http.HttpStatus.CREATED)
-    public Card createCard(@RequestBody CardRequest cardRequest) {
+    public Card createCard(@RequestBody @Valid CardRequest cardRequest) {
         return cardService.createCard(cardRequest);
     }
 

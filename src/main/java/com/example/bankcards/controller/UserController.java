@@ -3,6 +3,7 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.UserRequest;
 import com.example.bankcards.dto.UserResponse;
 import com.example.bankcards.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +18,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserResponse createUser(@RequestBody UserRequest request) {
+    public UserResponse createUser(@RequestBody @Valid UserRequest request) {
         return userService.createUser(request);
     }
 
     @PutMapping("/{id}")
-    public UserResponse updateUser(@PathVariable UUID id, @RequestBody UserRequest request) {
+    public UserResponse updateUser(@PathVariable UUID id,
+                                   @RequestBody @Valid UserRequest request) {
         return userService.updateUser(id, request);
     }
 
