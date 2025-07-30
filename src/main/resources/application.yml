@@ -16,12 +16,23 @@ spring:
     username: postgres
     password: postgres
     hikari:
-      connection-timeout: 20000 # 20 секунд
+      schema: bankcards
+      connection-init-sql: create schema if not exists bankcards
+      connection-timeout: 10000
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/migration/db.changelog-master.yml
+    default-schema: bankcards
+    liquibase-schema: bankcards
+    database-change-log-lock-table: databasechangeloglock
+    database-change-log-table: databasechangelog
+
 
 app:
   jwt:
