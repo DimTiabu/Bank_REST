@@ -25,7 +25,7 @@ public class UserRequest {
     @Email(message = "Неправильный формат электронной почты")
     private String email;
 
-    @Pattern(regexp = "^(89\\d{8})$", message = "Укажите номер телефона в формате 89********* ")
+    @Pattern(regexp = "^(89\\d{9})$", message = "Укажите номер телефона в формате 89********* ")
     @NotEmpty(message = "Укажите номер телефона")
     private String phoneNumber;
 

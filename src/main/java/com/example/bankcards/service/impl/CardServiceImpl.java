@@ -2,6 +2,7 @@ package com.example.bankcards.service.impl;
 
 import com.example.bankcards.dto.CardFilter;
 import com.example.bankcards.dto.CardRequest;
+import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
@@ -12,6 +13,7 @@ import com.example.bankcards.exception.StatusAlreadySetException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.CardSpecification;
 import com.example.bankcards.service.CardService;
+import com.example.bankcards.util.CardMapperFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,8 +34,8 @@ public class CardServiceImpl implements CardService {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public Card createCard(CardRequest cardRequest) {
-        return cardRepository.save(
+    public CardResponse createCard(CardRequest cardRequest) {
+        Card saved = cardRepository.save(
                 Card.builder()
                         .id(UUID.randomUUID())
                         .encryptedNumber(cardRequest.getCardNumber())
@@ -42,37 +44,38 @@ public class CardServiceImpl implements CardService {
                         .status(CardStatus.ACTIVE)
                         .balance(BigDecimal.ZERO)
                         .build());
+        return CardMapperFactory.toCardResponse(saved);
     }
 
     @Override
-    public Card getCardById(UUID id) {
-        return cardRepository.findById(id)
+    public CardResponse getCardById(UUID id) {
+        Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
+        return CardMapperFactory.toCardResponse(card);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public Page<Card> getAllCards(CardFilter cardFilter) {
+    public Page<CardResponse> getAllCards(CardFilter cardFilter) {
         return cardRepository.findAll(
                 CardSpecification.withFilter(cardFilter),
                 PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize())
-        );
+        ).map(CardMapperFactory::toCardResponse);
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public Card blockCard(UUID cardId) {
+    public CardResponse blockCard(UUID cardId) {
         return updateCardStatus(cardId, CardStatus.BLOCKED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public Card activateCard(UUID cardId) {
+    public CardResponse activateCard(UUID cardId) {
         return updateCardStatus(cardId, CardStatus.ACTIVE);
     }
 
-    public Card updateCardStatus(UUID cardId, CardStatus status) {
+    private CardResponse updateCardStatus(UUID cardId, CardStatus status) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
         String cardNumber = card.getEncryptedNumber();
@@ -82,11 +85,12 @@ public class CardServiceImpl implements CardService {
         }
 
         card.setStatus(status);
-        return cardRepository.save(card);
+        Card updated = cardRepository.save(card);
+        return CardMapperFactory.toCardResponse(updated);
     }
 
-    @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public void deleteCard(UUID id) {
         if (!cardRepository.existsById(id)) {
             throw new CardNotFoundException(id);
@@ -95,22 +99,23 @@ public class CardServiceImpl implements CardService {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public Page<Card> getAllMyCards(UUID currentUserId, CardFilter cardFilter) {
+    @Override
+    public Page<CardResponse> getAllMyCards(UUID currentUserId, CardFilter cardFilter) {
         cardFilter.setUserId(currentUserId);
         return cardRepository.findAll(
                 CardSpecification.withFilter(cardFilter),
                 PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize())
-        );
+        ).map(CardMapperFactory::toCardResponse);
     }
 
     @PreAuthorize("hasRole('USER')")
     @Override
     public void requestCardBlock(UUID cardId, UUID currentUserId) {
-        Card card = getCardById(cardId);
-        if (card.getUser().getId().equals(currentUserId)){
+        Card card = getCardByIdRaw(cardId);
+        if (!card.getUser().getId().equals(currentUserId)) {
             throw new CardNotFoundException(cardId);
         }
-        //TODO: реализация метода
+        // TODO: реализация запроса на блокировку карты пользователем
     }
 
     @Override
@@ -140,8 +145,13 @@ public class CardServiceImpl implements CardService {
         return card.getBalance();
     }
 
-    public Card getCardByCardNumberAndUserId(String cardNumber, UUID currentUserId) {
+    private Card getCardByCardNumberAndUserId(String cardNumber, UUID currentUserId) {
         return cardRepository.findByEncryptedNumberAndUserId(cardNumber, currentUserId)
                 .orElseThrow(() -> new CardNotFoundException(cardNumber));
+    }
+
+    private Card getCardByIdRaw(UUID id) {
+        return cardRepository.findById(id)
+                .orElseThrow(() -> new CardNotFoundException(id));
     }
 }

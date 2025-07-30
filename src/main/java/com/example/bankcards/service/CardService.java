@@ -2,8 +2,8 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardFilter;
 import com.example.bankcards.dto.CardRequest;
+import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
-import com.example.bankcards.entity.Card;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -13,19 +13,19 @@ import java.util.UUID;
 @Service
 public interface CardService {
 
-    Card createCard(CardRequest cardRequest);
+    CardResponse createCard(CardRequest cardRequest);
 
-    Card getCardById(UUID id);
+    CardResponse getCardById(UUID id);
 
-    Page<Card> getAllCards(CardFilter cardFilter);
+    Page<CardResponse> getAllCards(CardFilter cardFilter);
 
-    Card blockCard(UUID cardId);
+    CardResponse blockCard(UUID cardId);
 
-    Card activateCard(UUID cardId);
+    CardResponse activateCard(UUID cardId);
 
     void deleteCard(UUID id);
 
-    Page<Card> getAllMyCards(UUID userId, CardFilter cardFilter);
+    Page<CardResponse> getAllMyCards(UUID userId, CardFilter cardFilter);
 
     void requestCardBlock(UUID cardId, UUID currentUserId);
 

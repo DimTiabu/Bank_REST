@@ -2,8 +2,8 @@ package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.CardFilter;
 import com.example.bankcards.dto.CardRequest;
+import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
-import com.example.bankcards.entity.Card;
 import com.example.bankcards.service.CardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,17 +22,17 @@ public class CardController {
 
     @PostMapping
     @ResponseStatus(code = org.springframework.http.HttpStatus.CREATED)
-    public Card createCard(@RequestBody @Valid CardRequest cardRequest) {
+    public CardResponse createCard(@RequestBody @Valid CardRequest cardRequest) {
         return cardService.createCard(cardRequest);
     }
 
     @GetMapping("/{id}")
-    public Card getCardById(@PathVariable UUID id) {
+    public CardResponse getCardById(@PathVariable UUID id) {
         return cardService.getCardById(id);
     }
 
     @GetMapping
-    public Page<Card> getAllCards(
+    public Page<CardResponse> getAllCards(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "5") int pageSize,
             CardFilter cardFilter) {
@@ -42,12 +42,12 @@ public class CardController {
     }
 
     @PutMapping("/{cardId}/block")
-    public Card blockCard(@PathVariable UUID cardId) {
+    public CardResponse blockCard(@PathVariable UUID cardId) {
         return cardService.blockCard(cardId);
     }
 
     @PutMapping("/{cardId}/activate")
-    public Card activateCard(@PathVariable UUID cardId) {
+    public CardResponse activateCard(@PathVariable UUID cardId) {
         return cardService.activateCard(cardId);
     }
 
@@ -58,7 +58,7 @@ public class CardController {
     }
 
     @GetMapping("/user/{userId}")
-    public Page<Card> getAllMyCards(
+    public Page<CardResponse> getAllMyCards(
             @PathVariable UUID userId,
             CardFilter cardFilter) {
         return cardService.getAllMyCards(userId, cardFilter);
