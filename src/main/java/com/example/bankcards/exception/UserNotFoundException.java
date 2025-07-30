@@ -6,4 +6,8 @@ public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(UUID userId) {
         super("Пользователь с id: " + userId + " не найден");
     }
+
+    public UserNotFoundException(String email) {
+        super("Пользователь с email '" + email + "' не найден");
+    }
 }

@@ -7,11 +7,12 @@ import com.example.bankcards.exception.UserAlreadyExistsException;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.service.UserService;
+import com.example.bankcards.util.UserMapperFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse createUser(UserRequest request) {
@@ -29,17 +31,10 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException(email);
         }
 
-        User user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(email)
-                .phoneNumber(request.getPhoneNumber())
-                .password(request.getPassword()) // хешировать ? при необходимости
-                .role(request.getRole())
-                .createdAt(LocalDateTime.now())
-                .build();
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        User user = UserMapperFactory.toUser(request, encodedPassword);
 
-        return mapToResponse(userRepository.save(user));
+        return UserMapperFactory.toResponse(userRepository.save(user));
     }
 
     @Override
@@ -47,12 +42,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setRole(request.getRole());
+        String encodedPassword = request.getPassword() != null
+                ? passwordEncoder.encode(request.getPassword())
+                : null;
 
-        return mapToResponse(userRepository.save(user));
+        UserMapperFactory.updateUser(user, request, encodedPassword);
+
+        return UserMapperFactory.toResponse(userRepository.save(user));
     }
 
     @Override
@@ -67,24 +63,14 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(UserMapperFactory::toResponse)
                 .toList();
     }
 
     @Override
     public UserResponse getUserById(UUID id) {
         return userRepository.findById(id)
-                .map(this::mapToResponse)
+                .map(UserMapperFactory::toResponse)
                 .orElseThrow(() -> new UserNotFoundException(id));
-    }
-
-    private UserResponse mapToResponse(User user) {
-        return UserResponse.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole())
-                .build();
     }
 }
