@@ -8,39 +8,41 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 @RestControllerAdvice
 public class ExceptionHandlerController {
 
     @ExceptionHandler(CardNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse notFound(
-            CardNotFoundException ex) {
+    public ErrorResponse handleCardNotFound(CardNotFoundException ex) {
         log.error(ex.getMessage(), ex);
-        return new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage());
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse notFound(
-            UserNotFoundException ex) {
+    public ErrorResponse handleUserNotFound(UserNotFoundException ex) {
         log.error(ex.getMessage(), ex);
-        return new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage());
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
     @ExceptionHandler(StatusAlreadySetException.class)
-    @ResponseStatus(HttpStatus.CONFLICT )
-    public ErrorResponse notFound(
-            StatusAlreadySetException ex) {
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleStatusAlreadySet(StatusAlreadySetException ex) {
         log.error(ex.getMessage(), ex);
-        return new ErrorResponse(
-                HttpStatus.CONFLICT .value(),
-                ex.getMessage());
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
     }
 
+    @ExceptionHandler(CardIsNotActiveException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCardIsNotActive(CardIsNotActiveException ex) {
+        log.error(ex.getMessage(), ex);
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        log.error(ex.getMessage(), ex);
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
 }
