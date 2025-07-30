@@ -19,8 +19,8 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "encrypted_number", nullable = false, unique = true)
-    private String encryptedNumber;
+    @Column(nullable = false, unique = true)
+    private String number;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

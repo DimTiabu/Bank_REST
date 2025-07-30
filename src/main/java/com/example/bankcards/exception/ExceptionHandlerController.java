@@ -15,35 +15,35 @@ public class ExceptionHandlerController {
     @ExceptionHandler(CardNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleCardNotFound(CardNotFoundException ex) {
-        log.error(ex.getMessage(), ex);
+        log.warn(ex.getMessage());
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFound(UserNotFoundException ex) {
-        log.error(ex.getMessage(), ex);
+        log.warn(ex.getMessage());
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
     @ExceptionHandler(StatusAlreadySetException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleStatusAlreadySet(StatusAlreadySetException ex) {
-        log.error(ex.getMessage(), ex);
+        log.warn(ex.getMessage());
         return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
     }
 
     @ExceptionHandler(CardIsNotActiveException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleCardIsNotActive(CardIsNotActiveException ex) {
-        log.error(ex.getMessage(), ex);
+        log.warn(ex.getMessage());
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        log.error(ex.getMessage(), ex);
+    public ErrorResponse handleUserAlreadyExists(EmailAlreadyExistsException ex) {
+        log.warn(ex.getMessage());
         return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
     }
 

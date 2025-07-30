@@ -4,10 +4,10 @@ import java.util.UUID;
 
 public class CardNotFoundException extends RuntimeException {
     public CardNotFoundException(UUID cardId) {
-        super("Карта с id: " + cardId + " не найдена");
+        super("Card with ID: " + cardId + " was not found.");
     }
 
     public CardNotFoundException(String cardNumber) {
-        super("Карта с номером " + cardNumber + " не найдена");
+        super("Card with number " + cardNumber + " was not found.");
     }
 }

@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CardResponse {
     private UUID id;
-    private String maskedNumber;
+    private String number;
     private LocalDate expirationDate;
     private CardStatus status;
     private BigDecimal balance;

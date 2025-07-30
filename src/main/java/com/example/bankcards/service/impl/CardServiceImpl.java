@@ -7,11 +7,14 @@ import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.InsufficientFundsException;
+import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.CardIsNotActiveException;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.StatusAlreadySetException;
+import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.CardSpecification;
+import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.util.CardMapperFactory;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -31,21 +33,21 @@ import java.util.UUID;
 @Slf4j
 public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @Transactional
     public CardResponse createCard(CardRequest cardRequest) {
-        Card saved = cardRepository.save(
-                Card.builder()
-                        .id(UUID.randomUUID())
-                        .encryptedNumber(cardRequest.getCardNumber())
-                        .user(cardRequest.getUser())
-                        .expirationDate(LocalDate.now().plusYears(3))
-                        .status(CardStatus.ACTIVE)
-                        .balance(BigDecimal.ZERO)
-                        .build());
+        UUID userId = cardRequest.getUserId();
+        log.info("userId = " + userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        Card saved = cardRepository.save(CardMapperFactory.toCard(cardRequest, user));
         return CardMapperFactory.toCardResponse(saved);
     }
+
 
     @Override
     public CardResponse getCardById(UUID id) {
@@ -78,7 +80,7 @@ public class CardServiceImpl implements CardService {
     private CardResponse updateCardStatus(UUID cardId, CardStatus status) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
-        String cardNumber = card.getEncryptedNumber();
+        String cardNumber = card.getNumber();
 
         if (card.getStatus() == status) {
             throw new StatusAlreadySetException(cardNumber, status);
@@ -146,7 +148,7 @@ public class CardServiceImpl implements CardService {
     }
 
     private Card getCardByCardNumberAndUserId(String cardNumber, UUID currentUserId) {
-        return cardRepository.findByEncryptedNumberAndUserId(cardNumber, currentUserId)
+        return cardRepository.findByNumberAndUserId(cardNumber, currentUserId)
                 .orElseThrow(() -> new CardNotFoundException(cardNumber));
     }
 

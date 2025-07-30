@@ -3,7 +3,7 @@ package com.example.bankcards.service.impl;
 import com.example.bankcards.dto.UserRequest;
 import com.example.bankcards.dto.UserResponse;
 import com.example.bankcards.entity.User;
-import com.example.bankcards.exception.UserAlreadyExistsException;
+import com.example.bankcards.exception.EmailAlreadyExistsException;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.service.UserService;
@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse createUser(UserRequest request) {
         String email = request.getEmail();
         if (userRepository.existsByEmail(email)) {
-            throw new UserAlreadyExistsException(email);
+            throw new EmailAlreadyExistsException(email);
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -42,6 +42,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
+        String newEmail = request.getEmail();
+        User userWithEmail = userRepository.findByEmail(newEmail).orElse(null);
+        if (newEmail != null && userWithEmail != null && userWithEmail.getId() != id) {
+            throw new EmailAlreadyExistsException(newEmail);
+        }
         String encodedPassword = request.getPassword() != null
                 ? passwordEncoder.encode(request.getPassword())
                 : null;
