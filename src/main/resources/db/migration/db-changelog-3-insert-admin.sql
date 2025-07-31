@@ -6,7 +6,7 @@ INSERT INTO bankcards.users (
              'Adminov',
              'admin@mail.com',
              '89999999999',
-             '$2a$10$5H9qjldWZkaByoFX6npTnu9Y6DWK/B0VXs5RvabRC2SO4UeJHrsV.', -- bcrypt от "12345"
+             '$2a$10$RsAl5ilGctxuHtu0sJPRi.2ZV3yafzFHIRSW9kDorVJs.UiWy8e3i', -- bcrypt от "12345"
              'ROLE_ADMIN',
              now()
          );

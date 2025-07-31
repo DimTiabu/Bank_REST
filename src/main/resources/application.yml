@@ -33,6 +33,11 @@ spring:
     database-change-log-lock-table: databasechangeloglock
     database-change-log-table: databasechangelog
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
 
 app:
   jwt:
