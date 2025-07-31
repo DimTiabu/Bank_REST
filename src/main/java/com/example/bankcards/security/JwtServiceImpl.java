@@ -28,7 +28,7 @@ public class JwtServiceImpl {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
     public String generateJwtToken(AppUserDetails userDetails) {
-        String jwt = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("userId", userDetails.getId())
                 .claim("roles", userDetails.getAuthorities())
@@ -37,9 +37,6 @@ public class JwtServiceImpl {
                 .setHeaderParam("typ", "JWT")
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
-
-        log.info("Создан jwt для пользователя {}", userDetails.getUsername());
-        return jwt;
     }
 
     public String getUsername(String token) {
@@ -55,8 +52,6 @@ public class JwtServiceImpl {
         boolean result = true;
 
         try {
-            String email = getUsername(authToken);
-            log.info("Запущен метод validate для пользователя {}", email);
 
             Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
@@ -64,16 +59,16 @@ public class JwtServiceImpl {
                     .parseClaimsJws(authToken);
 
         } catch (SignatureException e) {
-            log.error("Недопустимая подпись: {}", e.getMessage());
+            log.error("Invalid signature: {}", e.getMessage());
             result = false;
         } catch (MalformedJwtException e) {
-            log.error("Недопустимый токен: {}", e.getMessage());
+            log.error("Invalid token: {}", e.getMessage());
             result = false;
         } catch (UnsupportedJwtException e) {
-            log.error("Токен не поддерживается: {}", e.getMessage());
+            log.error("Token not supported: {}", e.getMessage());
             result = false;
         } catch (ExpiredJwtException e) {
-            log.error("Токен просрочен");
+            log.error("Token expired");
             result = false;
         }
 
