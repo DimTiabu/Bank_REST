@@ -1,7 +1,6 @@
 package com.example.bankcards.service.impl;
 
 import com.example.bankcards.dto.CardFilter;
-import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
@@ -38,13 +37,12 @@ public class CardServiceImpl implements CardService {
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional
-    public CardResponse createCard(CardRequest cardRequest) {
-        UUID userId = cardRequest.getUserId();
+    public CardResponse createCard(UUID userId) {
         log.info("userId = " + userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        Card saved = cardRepository.save(CardMapperFactory.toCard(cardRequest, user));
+        Card saved = cardRepository.save(CardMapperFactory.toCard(user));
         return CardMapperFactory.toCardResponse(saved);
     }
 

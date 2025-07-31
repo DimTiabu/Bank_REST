@@ -1,13 +1,13 @@
 package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.CardFilter;
-import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.service.CardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -21,9 +21,9 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping
-    @ResponseStatus(code = org.springframework.http.HttpStatus.CREATED)
-    public CardResponse createCard(@RequestBody @Valid CardRequest cardRequest) {
-        return cardService.createCard(cardRequest);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public CardResponse createCard(@RequestBody @Valid UUID userId) {
+        return cardService.createCard(userId);
     }
 
     @GetMapping("/{id}")
@@ -52,7 +52,7 @@ public class CardController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(code = org.springframework.http.HttpStatus.NO_CONTENT)
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteCard(@PathVariable UUID id) {
         cardService.deleteCard(id);
     }

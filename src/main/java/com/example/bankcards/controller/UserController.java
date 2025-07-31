@@ -5,6 +5,7 @@ import com.example.bankcards.dto.UserResponse;
 import com.example.bankcards.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
+    @ResponseStatus(code = HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid UserRequest request) {
         return userService.createUser(request);
     }
@@ -29,6 +31,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
     }

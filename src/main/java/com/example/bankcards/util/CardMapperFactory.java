@@ -1,6 +1,5 @@
 package com.example.bankcards.util;
 
-import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
@@ -9,6 +8,7 @@ import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Random;
 import java.util.UUID;
 
 @UtilityClass
@@ -24,14 +24,27 @@ public class CardMapperFactory {
                 .build();
     }
 
-    public Card toCard(CardRequest request, User user) {
+    public Card toCard(User user) {
         return Card.builder()
                 .id(UUID.randomUUID())
-                .number(request.getCardNumber())
+                .number(generateRandomCardNumber())
                 .user(user)
                 .expirationDate(LocalDate.now().plusYears(3))
                 .status(CardStatus.ACTIVE)
                 .balance(BigDecimal.ZERO)
                 .build();
+    }
+
+    private String generateRandomCardNumber() {
+        Random random = new Random();
+        StringBuilder cardNumber = new StringBuilder();
+        for (int i = 0; i < 4; i++) {
+            int group = 1000 + random.nextInt(9000); // генерирует число от 1000 до 9999
+            cardNumber.append(group);
+            if (i < 3) {
+                cardNumber.append(" ");
+            }
+        }
+        return cardNumber.toString();
     }
 }
