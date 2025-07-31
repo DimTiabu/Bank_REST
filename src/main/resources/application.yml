@@ -13,8 +13,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/bank_cards_db
-    username: postgres
-    password: postgres
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     hikari:
       schema: bankcards
       connection-init-sql: create schema if not exists bankcards
@@ -36,7 +36,5 @@ spring:
 
 app:
   jwt:
-    secret: "v3ry_s3cur3_and_l0ng_s3cr3t_k3y_with_32_chr_min"
-    # Для удобства запуска jwt-secret расположен в application.yml
-    # Перед запуском нужно изменить на env
+    secret: ${JWT_SECRET:v3ry_s3cur3_and_l0ng_s3cr3t_k3y_with_32_chr_min}
     tokenExpiration: 1h
