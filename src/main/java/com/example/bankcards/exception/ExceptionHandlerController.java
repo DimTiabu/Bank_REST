@@ -68,4 +68,11 @@ public class ExceptionHandlerController {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
+    @ExceptionHandler(DuplicateBlockRequestException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateBlockRequest(DuplicateBlockRequestException ex) {
+        log.warn(ex.getMessage());
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
+
 }

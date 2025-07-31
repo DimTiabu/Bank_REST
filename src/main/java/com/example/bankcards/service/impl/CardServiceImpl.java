@@ -5,13 +5,11 @@ import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
+import com.example.bankcards.entity.CardBlockRequest;
 import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.exception.InsufficientFundsException;
+import com.example.bankcards.exception.*;
 import com.example.bankcards.entity.User;
-import com.example.bankcards.exception.CardIsNotActiveException;
-import com.example.bankcards.exception.CardNotFoundException;
-import com.example.bankcards.exception.StatusAlreadySetException;
-import com.example.bankcards.exception.UserNotFoundException;
+import com.example.bankcards.repository.CardBlockRequestRepository;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.CardSpecification;
 import com.example.bankcards.repository.UserRepository;
@@ -26,17 +24,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CardServiceImpl implements CardService {
+
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final CardBlockRequestRepository cardBlockRequestRepository;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CardResponse createCard(CardRequest cardRequest) {
         UUID userId = cardRequest.getUserId();
@@ -112,13 +113,31 @@ public class CardServiceImpl implements CardService {
     @Override
     public void requestCardBlock(UUID cardId, UUID currentUserId) {
         Card card = getCardByIdRaw(cardId);
+
         if (!card.getUser().getId().equals(currentUserId)) {
             throw new CardNotFoundException(cardId);
         }
-        // TODO: реализация запроса на блокировку карты пользователем
+
+        boolean requestExists = cardBlockRequestRepository.existsByCardIdAndStatus(
+                cardId,
+                CardBlockRequest.RequestStatus.ACTIVE
+        );
+        if (requestExists) {
+            throw new DuplicateBlockRequestException();
+        }
+
+        cardBlockRequestRepository.save(CardBlockRequest.builder()
+                .user(card.getUser())
+                .card(card)
+                .requestedAt(LocalDateTime.now())
+                .status(CardBlockRequest.RequestStatus.ACTIVE)
+                .build());
     }
 
+
+
     @Override
+    @PreAuthorize("hasRole('USER')")
     @Transactional
     public void transferBetweenMyCards(TransferRequest request, UUID currentUserId) {
         Card fromCard = getCardByIdAndUserId(request.getFromCardId(), currentUserId);
@@ -140,6 +159,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @PreAuthorize("hasRole('USER')")
     public BigDecimal getMyCardBalance(UUID cardId, UUID currentUserId) {
         Card card = getCardByIdAndUserId(cardId, currentUserId);
         return card.getBalance();
