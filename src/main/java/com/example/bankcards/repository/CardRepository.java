@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface CardRepository extends JpaRepository<Card, UUID>, JpaSpecificationExecutor<Card> {
 
-    Optional<Card> findByNumberAndUserId(String number, UUID userId);
+    Optional<Card> findByIdAndUserId(UUID id, UUID userId);
+
 }

@@ -9,7 +9,6 @@ import lombok.experimental.UtilityClass;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
-import java.util.UUID;
 
 @UtilityClass
 public class CardMapperFactory {
@@ -24,14 +23,13 @@ public class CardMapperFactory {
                 .build();
     }
 
-    public Card toCard(User user) {
+    public Card toCard(User user, BigDecimal balance) {
         return Card.builder()
-                .id(UUID.randomUUID())
                 .number(generateRandomCardNumber())
                 .user(user)
                 .expirationDate(LocalDate.now().plusYears(3))
                 .status(CardStatus.ACTIVE)
-                .balance(BigDecimal.ZERO)
+                .balance(balance)
                 .build();
     }
 

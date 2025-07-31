@@ -1,6 +1,7 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardFilter;
+import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
 import org.springframework.data.domain.Page;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Service
 public interface CardService {
 
-    CardResponse createCard(UUID userId);
+    CardResponse createCard(CardRequest cardRequest);
 
     CardResponse getCardById(UUID id);
 
@@ -30,5 +31,5 @@ public interface CardService {
 
     void transferBetweenMyCards(TransferRequest request, UUID currentUserId);
 
-    BigDecimal getMyCardBalance(String cardNumber, UUID currentUserId);
+    BigDecimal getMyCardBalance(UUID cardId, UUID currentUserId);
 }

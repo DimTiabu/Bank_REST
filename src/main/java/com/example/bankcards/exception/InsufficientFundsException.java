@@ -1,7 +1,7 @@
-package com.example.bankcards.entity;
+package com.example.bankcards.exception;
 
 public class InsufficientFundsException extends RuntimeException {
     public InsufficientFundsException() {
-        super("Недостаточно средств на карте");
+        super("Insufficient funds on the card");
     }
 }

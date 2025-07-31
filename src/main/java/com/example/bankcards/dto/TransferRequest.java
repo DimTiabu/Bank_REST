@@ -3,10 +3,11 @@ package com.example.bankcards.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 public class TransferRequest {
-    private String fromCardNumber;
-    private String toCardNumber;
+    private UUID fromCardId;
+    private UUID toCardId;
     private BigDecimal amount;
 }

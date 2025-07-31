@@ -1,11 +1,12 @@
 package com.example.bankcards.service.impl;
 
 import com.example.bankcards.dto.CardFilter;
+import com.example.bankcards.dto.CardRequest;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.InsufficientFundsException;
+import com.example.bankcards.exception.InsufficientFundsException;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.CardIsNotActiveException;
 import com.example.bankcards.exception.CardNotFoundException;
@@ -37,15 +38,14 @@ public class CardServiceImpl implements CardService {
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional
-    public CardResponse createCard(UUID userId) {
-        log.info("userId = " + userId);
+    public CardResponse createCard(CardRequest cardRequest) {
+        UUID userId = cardRequest.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        Card saved = cardRepository.save(CardMapperFactory.toCard(user));
+        Card saved = cardRepository.save(CardMapperFactory.toCard(user, cardRequest.getBalance()));
         return CardMapperFactory.toCardResponse(saved);
     }
-
 
     @Override
     public CardResponse getCardById(UUID id) {
@@ -121,8 +121,8 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public void transferBetweenMyCards(TransferRequest request, UUID currentUserId) {
-        Card fromCard = getCardByCardNumberAndUserId(request.getFromCardNumber(), currentUserId);
-        Card toCard = getCardByCardNumberAndUserId(request.getToCardNumber(), currentUserId);
+        Card fromCard = getCardByIdAndUserId(request.getFromCardId(), currentUserId);
+        Card toCard = getCardByIdAndUserId(request.getToCardId(), currentUserId);
 
         if (fromCard.getStatus() != CardStatus.ACTIVE || toCard.getStatus() != CardStatus.ACTIVE) {
             throw new CardIsNotActiveException();
@@ -140,15 +140,16 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public BigDecimal getMyCardBalance(String cardNumber, UUID currentUserId) {
-        Card card = getCardByCardNumberAndUserId(cardNumber, currentUserId);
+    public BigDecimal getMyCardBalance(UUID cardId, UUID currentUserId) {
+        Card card = getCardByIdAndUserId(cardId, currentUserId);
         return card.getBalance();
     }
 
-    private Card getCardByCardNumberAndUserId(String cardNumber, UUID currentUserId) {
-        return cardRepository.findByNumberAndUserId(cardNumber, currentUserId)
-                .orElseThrow(() -> new CardNotFoundException(cardNumber));
+    private Card getCardByIdAndUserId(UUID cardId, UUID userId) {
+        return cardRepository.findByIdAndUserId(cardId, userId)
+                .orElseThrow(() -> new CardNotFoundException(cardId));
     }
+
 
     private Card getCardByIdRaw(UUID id) {
         return cardRepository.findById(id)

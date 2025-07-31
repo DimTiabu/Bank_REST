@@ -60,4 +60,12 @@ public class ExceptionHandlerController {
         log.warn("Ошибка валидации: {}", message);
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
     }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInsufficientFunds(InsufficientFundsException ex) {
+        log.warn(ex.getMessage());
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    }
+
 }
