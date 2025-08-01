@@ -120,6 +120,7 @@
                     <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
                     <outputFileName>openapi.yaml</outputFileName>
                     <outputDir>./docs</outputDir>
+                    <skip>true</skip> <!-- отключает подключение, если приложение не запущено -->
                 </configuration>
             </plugin>
             <plugin>
