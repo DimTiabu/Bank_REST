@@ -76,6 +76,7 @@ JWT_SECRET="v3ry_s3cur3_and_l0ng_s3cr3t_k3y_with_32_chr_min"
 
 - через Docker Compose:
 ```bash
+  mvn clean package
   docker-compose up --build
 ```
 - для локального запуска:
