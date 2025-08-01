@@ -114,12 +114,13 @@
                         <goals>
                             <goal>generate</goal>
                         </goals>
-                        <configuration>
-                            <outputFileName>openapi.yaml</outputFileName>
-                            <outputDir>./docs</outputDir>
-                        </configuration>
-                    </execution>
+                       </execution>
                 </executions>
+                <configuration>
+                    <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                    <outputFileName>openapi.yaml</outputFileName>
+                    <outputDir>./docs</outputDir>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
