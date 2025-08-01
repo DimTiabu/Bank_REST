@@ -49,14 +49,16 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CardResponse getCardById(UUID id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
         return CardMapperFactory.toCardResponse(card);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
     public Page<CardResponse> getAllCards(CardFilter cardFilter) {
         return cardRepository.findAll(
                 CardSpecification.withFilter(cardFilter),
@@ -64,14 +66,16 @@ public class CardServiceImpl implements CardService {
         ).map(CardMapperFactory::toCardResponse);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public CardResponse blockCard(UUID cardId) {
         return updateCardStatus(cardId, CardStatus.BLOCKED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public CardResponse activateCard(UUID cardId) {
         return updateCardStatus(cardId, CardStatus.ACTIVE);
     }
@@ -90,8 +94,9 @@ public class CardServiceImpl implements CardService {
         return CardMapperFactory.toCardResponse(updated);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void deleteCard(UUID id) {
         if (!cardRepository.existsById(id)) {
             throw new CardNotFoundException(id);
@@ -99,8 +104,9 @@ public class CardServiceImpl implements CardService {
         cardRepository.deleteById(id);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Override
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Transactional(readOnly = true)
     public Page<CardResponse> getAllMyCards(UUID currentUserId, CardFilter cardFilter) {
         cardFilter.setUserId(currentUserId);
         return cardRepository.findAll(
@@ -109,8 +115,9 @@ public class CardServiceImpl implements CardService {
         ).map(CardMapperFactory::toCardResponse);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @Override
+    @PreAuthorize("hasRole('USER')")
+    @Transactional
     public void requestCardBlock(UUID cardId, UUID currentUserId) {
         Card card = getCardByIdRaw(cardId);
 
@@ -137,7 +144,7 @@ public class CardServiceImpl implements CardService {
 
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Transactional
     public void transferBetweenMyCards(TransferRequest request, UUID currentUserId) {
         Card fromCard = getCardByIdAndUserId(request.getFromCardId(), currentUserId);
@@ -159,7 +166,8 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Transactional(readOnly = true)
     public BigDecimal getMyCardBalance(UUID cardId, UUID currentUserId) {
         Card card = getCardByIdAndUserId(cardId, currentUserId);
         return card.getBalance();
